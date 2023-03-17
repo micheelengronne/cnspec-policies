@@ -54,7 +54,7 @@ policies:
           query: asset.family.contains("linux")
         scoring_queries:
           linux-snmp-v3-user-file-protected: null
-          linux-snmp-x2: null
+          linux-snmp-contains-no-read-write-community-strings: null
 queries:
   - uid: linux-snmp-v3-user-file-protected-0600
     title: Make sure the file containing SNMP user hashes is well protected
@@ -74,4 +74,21 @@ queries:
         permissions.other_writeable == false
         permissions.other_executable == false
         permissions.other_readable == false
+      }
+  - uid: linux-snmp-contains-no-read-write-community-strings
+    title: Make the SNMP configuration does not contains any read-write community strings
+    impact: 100
+    docs:
+      desc: |
+        No Read-Write community strings should be allowed.
+    query: |
+      files.find(from: '/etc/snmp/snmpd.conf.d', type: "file").list
+        {files = _
+          path
+          if(path.length > 0) {
+            file(path).content.lines.none(/^(\s+)?rwcommunity|rwcommunity6(\s+)/)
+          }
+        }
+      file("/etc/snmp/snmpd.conf") {
+        _.content.lines.none(/^(\s+)?rwcommunity|rwcommunity6(\s+)/)
       }
