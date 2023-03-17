@@ -1,0 +1,76 @@
+policies:
+  - uid: linux-snmp-policy
+    name: Linux Server Operational Policy by Mondoo
+    version: "1.0.0"
+    authors:
+      - name: Mondoo, Inc
+        email: hello@mondoo.com
+    tags:
+      mondoo.com/platform: linux,host
+      mondoo.com/category: best-practices
+    docs:
+      desc: |-
+        ## Overview
+
+        Linux Server SNMP Policy by Mondoo provides guidance for vulnerable SNMP configurations on Linux hosts.
+    
+        ## Local scan
+
+        Local scan refer to scans of files and operating systems where `cnspec` is installed.
+
+        To scan the `localhost` against this policy:
+
+        ```bash
+        cnspec scan local
+        ```
+
+        ## Remote scan
+
+        Remote scans use native transports in `cnspec` to provide on demand scan results without the need to install any agents, or integration.
+
+        For a complete list of native transports run:
+
+        ```bash
+        cnspec scan --help
+        ```
+
+        ### Prerequisites
+
+        Remote scans of Linux hosts requires authentication such as SSH keys.
+
+        ### Scan a remote Linux host (SSH authentication)
+
+        ```bash
+        cnspec scan ssh <user>@<IP_ADDRESS> -i /path/to/ssh_key
+        ```
+
+        ## Join the community!
+
+        Our goal is to build policies that are simple to deploy, accurate, and actionable. 
+        
+        If you have any suggestions on how to improve this policy, or if you need support, [join the community](https://github.com/orgs/mondoohq/discussions) in GitHub Discussions. 
+    specs:
+      - asset_filter:
+          query: asset.family.contains("linux")
+        scoring_queries:
+          linux-snmp-v3-user-file-protected: null
+          linux-snmp-x2: null
+queries:
+  - uid: linux-snmp-v3-user-file-protected-0600
+    title: Do not use community strings at all
+    impact: 100
+    docs:
+      desc: |
+        The file `/var/lib/snmp/snmpd.conf` contains user password hashes which can be as weak as MD5.
+    query: |
+      file("/var/lib/snmp/snmpd.conf") {
+        user.name == ' Debian-snmp'
+        group.name == ' Debian-snmp'
+        permissions.user_executable == false
+        permissions.group_writeable == false
+        permissions.group_readable == false
+        permissions.group_executable == false
+        permissions.other_writeable == false
+        permissions.other_executable == false
+        permissions.other_readable == false
+      }
