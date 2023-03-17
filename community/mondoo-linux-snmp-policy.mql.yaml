@@ -55,6 +55,7 @@ policies:
         scoring_queries:
           linux-snmp-v3-user-file-protected: null
           linux-snmp-contains-no-read-write-community-strings: null
+          linux-snmp-no-unauthenticated-access: null
 queries:
   - uid: linux-snmp-v3-user-file-protected-0600
     title: Make sure the file containing SNMP user hashes is well protected
@@ -91,4 +92,22 @@ queries:
         }
       file("/etc/snmp/snmpd.conf") {
         _.content.lines.none(/^(\s+)?rwcommunity|rwcommunity6(\s+)/)
+      }
+  - uid: linux-snmp-no-unauthenticated-access
+    title: Make sure there is no unauthenticated access to SNMP
+    impact: 100
+    docs:
+      desc: |
+        No unauthenticated access to SNMP should be allowed.
+        Note: So far this only work for Debian-based OS.
+    query: |
+      files.find(from: '/etc/snmp/snmpd.conf.d', type: "file").list
+        {files = _
+          path
+          if(path.length > 0) {
+            file(path).content.lines.none(/^(\s+)?rwuser\s+noauth(\s+)?/)
+          }
+        }
+      file("/etc/snmp/snmpd.conf") {
+        _.content.lines.none(/^(\s+)?rwuser\s+noauth(\s+)?/)
       }
