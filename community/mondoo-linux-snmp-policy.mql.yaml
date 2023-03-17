@@ -62,6 +62,7 @@ queries:
     docs:
       desc: |
         The file `/var/lib/snmp/snmpd.conf` contains user password hashes which can be as weak as MD5.
+        Note: So far this only work for Debian-based OS.
     query: |
       file("/var/lib/snmp/snmpd.conf") {
         user.name == ' Debian-snmp'
