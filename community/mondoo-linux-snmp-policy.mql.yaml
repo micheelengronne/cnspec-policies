@@ -57,7 +57,7 @@ policies:
           linux-snmp-x2: null
 queries:
   - uid: linux-snmp-v3-user-file-protected-0600
-    title: Do not use community strings at all
+    title: Make sure the file containing SNMP user hashes is well protected
     impact: 100
     docs:
       desc: |
